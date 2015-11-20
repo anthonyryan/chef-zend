@@ -80,27 +80,29 @@ if platform?('debian', 'ubuntu')
     ignore_failure true
     only_if { ::Dir.exists?("#{node[:zend][:phpdir]}") }
   end
-#  link "#{node[:zend][:phpdir]}/apache2/conf.d/zend.ini" do
-#    to "#{node[:zend][:phpdir]}/mods-available/zend.ini"
-#    ignore_failure true
-#    only_if { ::Dir.exists?("#{node[:zend][:phpdir]}") }
-#  end
-#  link "#{node[:zend][:phpdir]}/cli/conf.d/zend.ini" do
-#    to "#{node[:zend][:phpdir]}/mods-available/zend.ini"
-#    ignore_failure true
-#    only_if { ::Dir.exists?("#{node[:zend][:phpdir]}") }
-#  end
-end
 
-# enable zend php module
-if platform?('debian', 'ubuntu')
-  execute "zend php module enable" do
-    environment({"PATH" => "/usr/local/bin:/usr/bin:/bin:/usr/sbin:$PATH"})
-    command "/usr/sbin/php5enmod zend"
-    ignore_failure true
-    only_if { ::Dir.glob("#{node[:zend][:phpdir]}/apache2/conf.d/*zend.ini").any? }
-    only_if { ::File.exists?("/usr/sbin/php5enmod") }
+  # do we manually symlink or use php5enmod ?
+  if ::File.exists?("/usr/sbin/php5enmod")
+    # enable zend php module
+    # todo: add notify delay here so that it calls execute after everything else
+    execute "zend php module enable" do
+      environment({"PATH" => "/usr/local/bin:/usr/bin:/bin:/usr/sbin:$PATH"})
+      command "/usr/sbin/php5enmod zend"
+      ignore_failure true
+      only_if { ::File.exists?("#{node[:zend][:phpdir]}/mods-available/zend.ini") }
+    end
+  else
+    # symlink manually
+    %w(apache2 cli fpm).each do |process|
+      link "#{node[:zend][:phpdir]}/#{process}/conf.d/zend.ini" do
+        to "#{node[:zend][:phpdir]}/mods-available/zend.ini"
+        ignore_failure true
+        only_if { ::Dir.exists?("#{node[:zend][:phpdir]}/#{process}") }
+      end
+    end
   end
+
+# todo: redhat/amazon install ref
 end
 
 # clean up install path
