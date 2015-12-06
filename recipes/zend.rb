@@ -55,7 +55,8 @@ if platform?('debian', 'ubuntu')
     command "/usr/sbin/php5dismod opcache"
     ignore_failure true
     only_if { ::File.exists?("/usr/lib/php5/20121212/opcache.so") }
-    only_if { ::File.exists?("/usr/sbin/php5enmod") }
+    only_if { ::File.exists?("/usr/sbin/php5dismod") }
+    only_if { ::File.exists?("/usr/sbin/php5query") }
   end
 end
 
@@ -94,7 +95,7 @@ if platform?('debian', 'ubuntu')
   else
     # symlink manually
     %w(apache2 cli fpm).each do |process|
-      link "#{node[:zend][:phpdir]}/#{process}/conf.d/zend.ini" do
+      link "#{node[:zend][:phpdir]}/#{process}/conf.d/20-zend.ini" do
         to "#{node[:zend][:phpdir]}/mods-available/zend.ini"
         ignore_failure true
         only_if { ::Dir.exists?("#{node[:zend][:phpdir]}/#{process}") }

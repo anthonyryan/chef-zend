@@ -16,26 +16,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# set apache info
+# set info
 case node[:platform]
 when 'redhat','centos','fedora','amazon'
-  default['zend']['apacheuser'] = "www"
-  default['zend']['apachegroup'] = "www"
+  default['zend']['webuser'] = "www-data"
+  default['zend']['webgroup'] = "www-data"
   default['zend']['apachepid'] = "httpd"
   default['zend']['apachedir'] = "/etc/httpd"
   default['zend']['phpdir'] = "/etc/php"
+  default['zend']['nginxdir'] = "/etc/nginx"
 when 'gentoo'
-  default['zend']['apacheuser'] = "www"
-  default['zend']['apachegroup'] = "www"
+  default['zend']['webuser'] = "apache"
+  default['zend']['webgroup'] = "apache"
   default['zend']['apachepid'] = "apache2"
   default['zend']['apachedir'] = "/etc/apache2"
   default['zend']['phpdir'] = "/etc/php"
+  default['zend']['nginxdir'] = "/etc/nginx"
 when 'debian','ubuntu'
-  default['zend']['apacheuser'] = "www"
-  default['zend']['apachegroup'] = "www"
+  default['zend']['webuser'] = "www-data"
+  default['zend']['webgroup'] = "www-data"
   default['zend']['apachepid'] = "apache2"
   default['zend']['apachedir'] = "/etc/apache2"
   default['zend']['phpdir'] = "/etc/php5"
+  default['zend']['nginxdir'] = "/etc/nginx"
 else
   raise 'Bailing out, unknown platform.'
 end
@@ -45,3 +48,5 @@ default['zend']['zendsrc_url'] = "http://downloads.zend.com/guard"
 default['zend']['zendfile'] = "zend-loader-php5.5-linux-x86_64.tar.gz"
 default['zend']['zendversion'] = "7.0.0"
 default['zend']['zenddir'] = "/usr/local/zend"
+
+include_attribute 'zend::customize'
